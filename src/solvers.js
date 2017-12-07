@@ -18,30 +18,30 @@
 // empty matrix that passes in to the Board constructor
 // returns Board instance, where we can call useful methods
 window.findNRooksSolution = function(n) {
-  let emptyMatrix = _.map(_.range(0, n), (index) => {
-    return Array(n).fill(0);
-  });
+  let board = new Board({n: n});
 
-  let board = new Board(emptyMatrix);
-
-  let solveRooks = function(rowIndex, nRooks) {
+  let solveRooks = function(rowIndex, colIndex, nRooks) {
     if (!nRooks) {
-      return true;
+      return;
     }
 
-    _.each(_.range(0, board.get('n')), (colIndex) => {
-      if (nRooks) {
-        board.togglePiece(rowIndex, colIndex);
-        if (board.hasAnyRooksConflicts()) {
-          board.togglePiece(rowIndex, colIndex);
-          return;
-        }
-        solveRooks(rowIndex + 1, nRooks - 1);
-      }
-    });
+    if (nRooks) {
+      board.togglePiece(rowIndex, colIndex);
+      solveRooks(rowIndex + 1, colIndex + 1, nRooks - 1);
+    }
+    // _.each(_.range(0, board.get('n')), (colIndex) => {
+    //   if (nRooks) {
+    //     board.togglePiece(rowIndex, colIndex);
+    //     if (board.hasAnyRooksConflicts()) {
+    //       board.togglePiece(rowIndex, colIndex);
+    //       return;
+    //     }
+    //     solveRooks(rowIndex + 1, nRooks - 1);
+    //   }
+    // });
   };
 
-  solveRooks(0, n);
+  solveRooks(0, 0, n);
 
   let solution = board.rows();
   console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
@@ -64,30 +64,46 @@ window.countNRooksSolutions = function(n) {
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
-  let emptyMatrix = _.map(_.range(0, n), (index) => {
-    return Array(n).fill(0);
-  });
+  let board = new Board({n: n});
 
-  let board = new Board(emptyMatrix);
-
-  let solveQueens = function(rowIndex, nQueens) {
-    if (!nQueens) {
+  let queenCount = 0;
+  // let togglePositions = [];
+  let solveQueens = (rowIndex, colIndex, n) => {
+    for (let row = rowIndex; row < n; row++) {
+      for (let col = colIndex; col < n; col++) {
+        board.togglePiece(row, col);
+        queenCount++;
+        if (board.hasAnyQueensConflicts()) {
+          board.togglePiece(row, col);
+          queenCount--;
+        } else {
+          // togglePositions.push([row, col]);
+          var tempCol = col + 1;
+          if (tempCol < n) {
+            if (solveQueens(row, tempCol, n)) {
+              board.togglePiece(row, col);
+              // togglePositions.pop();
+              queenCount--;
+            }
+          } else {
+            var tempRow = row + 1;
+            if (tempRow < n) {
+              if (solveQueens(tempRow, 0, n)) {
+                board.togglePiece(row, col);
+                // togglePositions.pop();
+                queenCount--;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (queenCount !== n) {
       return true;
     }
-
-    _.each(_.range(0, board.get('n')), (colIndex) => {
-      if (nQueens) {
-        board.togglePiece(rowIndex, colIndex);
-        if (board.hasAnyQueensConflicts()) {
-          board.togglePiece(rowIndex, colIndex);
-          return;
-        }
-        solveQueens(rowIndex + 1, nQueens - 1);
-      }
-    });
   };
 
-  solveQueens(0, n);
+  solveQueens(0, 0, n);
 
   let solution = board.rows();
 
