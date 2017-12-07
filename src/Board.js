@@ -121,8 +121,6 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      // input will let us know where the major diagonal begins
-        // the row / col needs to increment by 1 until it hits (n - 1)
       const mapDiagonal = _.map(this.rows(), (currRow, index) => {
         if (currRow[majorDiagonalColumnIndexAtFirstRow + index]) {
           return currRow[majorDiagonalColumnIndexAtFirstRow + index];
@@ -135,20 +133,13 @@
           return memo + slot;
         }
       }, 0) > 1;
-
-
-      // we can do this later, if passed the imaginary space
-      // if is negative majorDiagonalColumnIndexAtFirstRow, take the abs which will give us the row starting pos
-      
     },
 
-    // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      return _.some(_.range(-this.get('n'), this.get('n')), (index) => {
+      return _.some(_.range(-this.get('n') + 1, this.get('n')), (index) => {
         return this.hasMajorDiagonalConflictAt(index);
       });
     },
-
 
 
     // Minor Diagonals - go from top-right to bottom-left
@@ -170,7 +161,6 @@
       }, 0) > 1;
     },
 
-    // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
       return _.some(_.range(0, this.get('n') + (this.get('n') - 2)), (index) => {
         return this.hasMinorDiagonalConflictAt(index);
