@@ -65,45 +65,34 @@ window.countNRooksSolutions = function(n) {
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
 window.findNQueensSolution = function(n) {
   let board = new Board({n: n});
-
   let queenCount = 0;
-  // let togglePositions = [];
-  let solveQueens = (rowIndex, colIndex, n) => {
-    for (let row = rowIndex; row < n; row++) {
-      for (let col = colIndex; col < n; col++) {
-        board.togglePiece(row, col);
-        queenCount++;
-        if (board.hasAnyQueensConflicts()) {
-          board.togglePiece(row, col);
+  let solveQueens = (rowIndex, n) => {
+    if (rowIndex === n) {
+      return;
+    }
+    for (let i = 0; i < n; i++) {
+      board.togglePiece(rowIndex, i);
+      queenCount++;
+      if (board.hasAnyQueensConflicts()) {
+        board.togglePiece(rowIndex, i);
+        queenCount--;
+      } else {
+        if (solveQueens(rowIndex + 1, n)) {
+          board.togglePiece(rowIndex, i);
           queenCount--;
         } else {
-          // togglePositions.push([row, col]);
-          var tempCol = col + 1;
-          if (tempCol < n) {
-            if (solveQueens(row, tempCol, n)) {
-              board.togglePiece(row, col);
-              // togglePositions.pop();
-              queenCount--;
-            }
-          } else {
-            var tempRow = row + 1;
-            if (tempRow < n) {
-              if (solveQueens(tempRow, 0, n)) {
-                board.togglePiece(row, col);
-                // togglePositions.pop();
-                queenCount--;
-              }
-            }
-          }
+          return;
         }
       }
     }
+    // finish the column loop
     if (queenCount !== n) {
+      // backtrack to prev call
       return true;
     }
   };
 
-  solveQueens(0, 0, n);
+  solveQueens(0, n);
 
   let solution = board.rows();
 
