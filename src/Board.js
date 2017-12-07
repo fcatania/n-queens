@@ -79,12 +79,16 @@
     //
     // test if a specific row on this board contains a conflict
     hasRowConflictAt: function(rowIndex) {
-      return false; // fixme
+      return _.reduce(this.get(rowIndex), (memo, slot) => {
+        return memo + slot;
+      }, 0) > 1;
     },
 
     // test if any rows on this board contain conflicts
     hasAnyRowConflicts: function() {
-      return false; // fixme
+      return _.some(_.range(0, this.get('n')), (rowIndex) => {
+        return this.hasRowConflictAt(rowIndex);
+      });
     },
 
 
@@ -94,12 +98,20 @@
     //
     // test if a specific column on this board contains a conflict
     hasColConflictAt: function(colIndex) {
-      return false; // fixme
+      const currCol = _.map(this.rows(), (currRow) => {
+        return currRow[colIndex];
+      });
+
+      return _.reduce(currCol, (memo, slot) => {
+        return memo + slot;
+      }, 0) > 1;
     },
 
     // test if any columns on this board contain conflicts
     hasAnyColConflicts: function() {
-      return false; // fixme
+      return _.some(_.range(0, this.get('n')), (colIndex) => {
+        return this.hasColConflictAt(colIndex);
+      });
     },
 
 
@@ -109,12 +121,32 @@
     //
     // test if a specific major diagonal on this board contains a conflict
     hasMajorDiagonalConflictAt: function(majorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      // input will let us know where the major diagonal begins
+        // the row / col needs to increment by 1 until it hits (n - 1)
+      const mapDiagonal = _.map(this.rows(), (currRow, index) => {
+        if (currRow[majorDiagonalColumnIndexAtFirstRow + index]) {
+          return currRow[majorDiagonalColumnIndexAtFirstRow + index];
+        }
+      });
+      return _.reduce(mapDiagonal, (memo, slot) => {
+        if (!slot) {
+          return memo;
+        } else {
+          return memo + slot;
+        }
+      }, 0) > 1;
+
+
+      // we can do this later, if passed the imaginary space
+      // if is negative majorDiagonalColumnIndexAtFirstRow, take the abs which will give us the row starting pos
+      
     },
 
     // test if any major diagonals on this board contain conflicts
     hasAnyMajorDiagonalConflicts: function() {
-      return false; // fixme
+      return _.some(_.range(-this.get('n'), this.get('n')), (index) => {
+        return this.hasMajorDiagonalConflictAt(index);
+      });
     },
 
 
@@ -124,12 +156,25 @@
     //
     // test if a specific minor diagonal on this board contains a conflict
     hasMinorDiagonalConflictAt: function(minorDiagonalColumnIndexAtFirstRow) {
-      return false; // fixme
+      const mapDiagonal = _.map(this.rows(), (currRow, index) => {
+        if (currRow[minorDiagonalColumnIndexAtFirstRow - index]) {
+          return currRow[minorDiagonalColumnIndexAtFirstRow - index];
+        }
+      });
+      return _.reduce(mapDiagonal, (memo, slot) => {
+        if (!slot) {
+          return memo;
+        } else {
+          return memo + slot;
+        }
+      }, 0) > 1;
     },
 
     // test if any minor diagonals on this board contain conflicts
     hasAnyMinorDiagonalConflicts: function() {
-      return false; // fixme
+      return _.some(_.range(0, this.get('n') + (this.get('n') - 2)), (index) => {
+        return this.hasMinorDiagonalConflictAt(index);
+      });
     }
 
     /*--------------------  End of Helper Functions  ---------------------*/
